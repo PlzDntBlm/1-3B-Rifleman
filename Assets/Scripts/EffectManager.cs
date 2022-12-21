@@ -11,35 +11,31 @@ public class EffectManager : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         GameObject collisionObject = collision.gameObject;
-        if ((layerMask & 1 << collisionObject.layer) == 1 << collisionObject.layer)
+        if ((layerMask & 1 << collisionObject.layer) != 1 << collisionObject.layer)
         {
-            if (collisionObject.GetComponent<Effects>() != null)
-            {
-                Effects collisionEffects = collisionObject.GetComponent<Effects>();
-
-                // heart logic
-                if (guiManager.heartsLeft <= guiManager.maxHearts)
-                {
-                    if (guiManager.heartsLeft + collisionEffects.healthEffect > guiManager.maxHearts)
-                    {
-                        guiManager.heartsLeft = guiManager.maxHearts;
-                    }
-                    else
-                    {
-                        guiManager.heartsLeft += collisionEffects.healthEffect;
-                        if(guiManager.heartsLeft <= 0){
-                            guiManager.heartsLeft = 0;
-
-                            // death
-                            Death();
-                        }
-                    }
-                }
-            }
+            return;
         }
+
+        Effects collisionEffects = collisionObject.GetComponent<Effects>();
+        if (collisionEffects == null)
+        {
+            return;
+        }
+
+        int newHearts = Mathf.Min(guiManager.heartsLeft + collisionEffects.healthEffect, guiManager.maxHearts);
+        if (newHearts <= 0)
+        {
+            Death();
+            return;
+        }
+
+        guiManager.heartsLeft = newHearts;
+        guiManager.updateGUI();
     }
-    private void Death(){
+    private void Death()
+    {
         gameManager.Die();
         guiManager.heartsLeft = guiManager.maxHearts;
+        guiManager.updateGUI();
     }
 }

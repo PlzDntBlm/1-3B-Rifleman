@@ -10,54 +10,47 @@ public class GameManager : MonoBehaviour
     public GameObject DeathScreen;
 
     public float timescale = 0f;
-    public bool isPaused = true;
 
-    //private bool waitForKeyUp = false;
     // Start is called before the first frame update
     void Start()
     {
         //NewRound();
         ViewStartScreen();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     void ViewStartScreen()
     {
-        Debug.Log($"Start Screen");
-        StartScreen.GetComponent<TextMeshProUGUI>().enabled = true;
-        timescale = 0f;
-
-        WaitForKeyPressToStart();
-    }
-    void WaitForKeyPressToStart()
-    {
-
-        //Start Coroutine
+        toggleScreens("start");
         StartCoroutine(keyPressToStart());
+    }
+    public void Die()
+    {
+        toggleScreens("death");
+        StartCoroutine(keyPressToHideDeathScreen());
+    }
+    void toggleScreens(string eventType)
+    {
+        switch (eventType)
+        {
+            case "start":
+                StartScreen.GetComponent<TextMeshProUGUI>().enabled = true;
+                break;
+            case "death":
+                DeathScreen.SetActive(true);
+                break;
+            default:
+                Debug.LogError("Invalid event type: " + eventType);
+                break;
+        }
+        timescale = 0f;
     }
     IEnumerator keyPressToStart()
     {
-        yield return new WaitForSeconds(1);
         while (!Input.GetKeyDown(KeyCode.Space))
         {
             yield return null;
         }
-
         StartScreen.GetComponent<TextMeshProUGUI>().enabled = false;
         timescale = 1f;
-        yield return null;
-    }
-    public void Die()
-    {
-        Debug.Log($"Just Died");
-        DeathScreen.SetActive(true);
-        timescale = 0f;
-
-        StartCoroutine(keyPressToHideDeathScreen());
     }
     void restartLevel()
     {
@@ -65,12 +58,14 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator keyPressToHideDeathScreen()
     {
+        yield return new WaitForSeconds(0.5f);
+
         while (!Input.GetKeyDown(KeyCode.Space))
         {
             yield return null;
         }
+
         DeathScreen.SetActive(false);
         restartLevel();
-        yield return null;
     }
 }

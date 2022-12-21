@@ -1,11 +1,13 @@
 using UnityEngine;
- 
+
 public class CameraLetterBox : MonoBehaviour
 {
     public Camera backgroundCam;
     public Camera mainCam;
     public float targetAspectRatio = 1f;
- 
+
+    private float cachedScreenWidth = -1;
+    private float cachedScreenHeight = -1;
     private void Start()
     {
         if (mainCam == null)
@@ -31,17 +33,25 @@ public class CameraLetterBox : MonoBehaviour
             backgroundCam.depth = mainCam.depth - 1;
         }
     }
+
     private void Update()
     {
         float w = Screen.width;
         float h = Screen.height;
+        if (w == cachedScreenWidth && h == cachedScreenHeight)
+        {
+            return;
+        }
+        cachedScreenWidth = w;
+        cachedScreenHeight = h;
+
         float a = w / h;
         Rect r;
         if (a > targetAspectRatio)
         {
             float tw = h * targetAspectRatio;
             float o = (w - tw) * 0.5f;
-            r = new Rect(o,0,tw,h);
+            r = new Rect(o, 0, tw, h);
         }
         else
         {
